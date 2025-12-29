@@ -10,7 +10,7 @@ The current functionality of the API (Still in progress)
 ### Prerequisites
 Install required packages
 ```sh
-  npm install requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Starting API Server
