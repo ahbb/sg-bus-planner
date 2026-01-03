@@ -63,9 +63,18 @@ export default function Results() {
         <View style={{ marginTop: 12 }} />
 
         {results.length === 0 ? (
-          <Text style={{ textAlign: "center", marginTop: 40, fontSize: 16, marginBottom: 40 }}>
-            No buses found at this moment!
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 40,
+              fontSize: 16,
+              marginBottom: 40,
+              color: "#666",
+            }}
+          >
+            No buses found right now 🚫🚌
           </Text>
+
         ) : (
           results.map((item, index) => {
             const stop = BUS_STOP_MAP[item.bus_stop_code];

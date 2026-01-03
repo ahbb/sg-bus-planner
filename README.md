@@ -13,12 +13,13 @@ Install required packages
 pip install -r requirements.txt
 ```
 
-## Starting API Server
+## Starting API Server and Mobile App
 Note: LTA API Key is required to run some APIs
 ```sh
-cd backend
-uvicorn main:app --reload
+cd frontend/bus-planner
+npm run dev
 ```
+This command runs the API server and starts the mobile app due to a script written in package.json.
 
 ## Acknowledgments
 Land Transport Datamall

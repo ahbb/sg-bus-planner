@@ -8,7 +8,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd ../../backend && uvicorn main:app --host 0.0.0.0 --port 8000",
+    "frontend": "npx expo start --tunnel"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
