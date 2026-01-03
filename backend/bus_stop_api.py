@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import time
 import json
 
+# Used for initial data prep
+
 # Get LTA API Key
 load_dotenv()
 LTA_API_KEY = os.getenv('LTA_API_KEY')

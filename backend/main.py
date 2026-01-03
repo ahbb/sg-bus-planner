@@ -6,8 +6,20 @@ from dateutil import parser
 import os
 from dotenv import load_dotenv
 from models import BusOption, CompareRequest
+from fastapi.middleware.cors import CORSMiddleware
+
+# .\venv\Scripts\Activate.ps1
+# uvicorn main:app --host 0.0.0.0 --port 8000
 
 app = FastAPI(title="Bus Arrival API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all for dev
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Get LTA API Key
 load_dotenv()
@@ -98,7 +110,6 @@ def compare_bus_arrivals(payload: CompareRequest):
             "eta_min": eta
         })
 
-
     if not results:
         raise HTTPException(
             status_code=404,
@@ -113,6 +124,7 @@ def compare_bus_arrivals(payload: CompareRequest):
 
 
 # Get bus arrivals based on bus stop code and bus no.
+# TODO: make service no. non-mandatory
 @app.get("/bus-arrival")
 def get_bus_arrival(bus_stop_code: str, service_no):
     params = {
