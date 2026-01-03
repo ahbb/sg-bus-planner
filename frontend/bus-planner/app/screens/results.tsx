@@ -62,28 +62,38 @@ export default function Results() {
 
         <View style={{ marginTop: 12 }} />
 
-        {results.map((item, index) => {
-          const stop = BUS_STOP_MAP[item.bus_stop_code];
-          return (
-            <View
-              key={index}
-              style={{
-                padding: 12,
-                marginBottom: 25,
-                borderWidth: 1,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>{item.service_no}</Text>
-              <Text style={{ fontSize: 16 }}>
-                {item.eta_min === 0 ? "Arriving" : `${item.eta_min} min`}
-              </Text>
-              <Text style={{ fontSize: 14 }}>
-                {stop?.Description ?? "Unknown stop"}
-              </Text>
-            </View>
-          );
-        })}
+        {results.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 40, fontSize: 16, marginBottom: 40 }}>
+            No buses found at this moment!
+          </Text>
+        ) : (
+          results.map((item, index) => {
+            const stop = BUS_STOP_MAP[item.bus_stop_code];
+            return (
+              <View
+                key={index}
+                style={{
+                  padding: 12,
+                  marginBottom: 25,
+                  borderWidth: 1,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                  {item.service_no}
+                </Text>
+
+                <Text style={{ fontSize: 16 }}>
+                  {item.eta_min === 0 ? "Arriving" : `${item.eta_min} min`}
+                </Text>
+
+                <Text style={{ fontSize: 14 }}>
+                  {stop?.Description ?? "Unknown stop"}
+                </Text>
+              </View>
+            );
+          })
+        )}
 
         {/* Back to Home button */}
         <Button

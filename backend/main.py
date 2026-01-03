@@ -110,12 +110,6 @@ def compare_bus_arrivals(payload: CompareRequest):
             "service_no": service_no,
             "eta_min": eta
         })
-
-    if not results:
-        raise HTTPException(
-            status_code=404,
-            detail="None of the provided options have upcoming buses for the specified service numbers"
-        )
     
     # Sort by ETA
     results.sort(key=lambda x: x["eta_min"])
