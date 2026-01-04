@@ -11,6 +11,9 @@ export default function Home() {
         <Text style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}>
           Where are you going?
         </Text>
+        <Text style={{ color: "red", fontSize: 18 }}>
+          OTA UPDATE TEST v2
+        </Text>
 
         <Button
           title="Ang Mo Kio Int"
