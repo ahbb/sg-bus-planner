@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 import json
 import requests
 from datetime import datetime, timezone
@@ -188,3 +188,8 @@ def search_bus_stops(keyword: str, limit=20):
     ]
     return matches[:limit]
 
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print("Incoming:", request.method, request.url)
+    return await call_next(request)

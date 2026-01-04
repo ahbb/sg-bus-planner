@@ -22,5 +22,5 @@ npm run dev
 This command runs the API server and starts the mobile app due to a script written in package.json.
 
 ## Acknowledgments
-Land Transport Datamall
+Land Transport Datamall  
 [LTA APIs](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html)
