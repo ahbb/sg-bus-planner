@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import ScreenWrapper from "./screens/screenwrapper";
 
 // npx expo start --tunnel (tunnel to make it work on mobile)
+// eas update --channel production
 
 export default function Home() {
   return (
