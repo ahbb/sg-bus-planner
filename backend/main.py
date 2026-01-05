@@ -10,7 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # .\venv\Scripts\Activate.ps1
 # uvicorn main:app --host 0.0.0.0 --port 8000
-# ngrok http 8000 (if needed)
+# ngrok http 8000 (when developing locally)
+
+# Render deployment
+# Build command: pip install -r requirements.txt
+# Start command: cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 (need to go into correct folder first)
 
 app = FastAPI(title="Bus Arrival API")
 
@@ -85,7 +89,7 @@ def compare_bus_arrivals(payload: CompareRequest):
                     "BusStopCode": stop_code,
                     "ServiceNo": service_no
                 },
-                timeout=5
+                timeout=60
             )
             response.raise_for_status()
 

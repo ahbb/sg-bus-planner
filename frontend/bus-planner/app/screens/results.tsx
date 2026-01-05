@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, Button } from "react-native";
+import { View, Text, ActivityIndicator, Button, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { compareBusArrivals } from "../services/api";
 import { useLocalSearchParams, router } from "expo-router";
@@ -11,7 +11,9 @@ export default function Results() {
   const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const { destination } = useLocalSearchParams<{ destination: DestinationKey }>();
+  const { destination } = useLocalSearchParams<{
+    destination: DestinationKey;
+  }>();
   const config = DESTINATIONS[destination];
 
   useEffect(() => {
@@ -35,15 +37,16 @@ export default function Results() {
 
   if (loading) {
     return (
-      <View style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" color="#007AFF" />
       </View>
     );
-
   }
 
   if (error) {
@@ -52,13 +55,14 @@ export default function Results() {
 
   return (
     <ScreenWrapper>
-      <View style={{ padding: 20 }}>
-        <Text style={{ fontSize: 20, marginBottom: 10 }}>
-          Best buses to:
-        </Text>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-          {destination}
-        </Text>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 20,
+          flexGrow: 1,
+        }}
+      >
+        <Text style={{ fontSize: 20, marginBottom: 10 }}>Best buses to:</Text>
+        <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destination}</Text>
 
         <View style={{ marginTop: 12 }} />
 
@@ -74,7 +78,6 @@ export default function Results() {
           >
             No buses found right now 🚫🚌
           </Text>
-
         ) : (
           results.map((item, index) => {
             const stop = BUS_STOP_MAP[item.bus_stop_code];
@@ -105,11 +108,8 @@ export default function Results() {
         )}
 
         {/* Back to Home button */}
-        <Button
-          title="⬅ Home"
-          onPress={() => router.push("/")}
-        />
-      </View>
+        <Button title="⬅ Home" onPress={() => router.push("/")} />
+      </ScrollView>
     </ScreenWrapper>
   );
 }

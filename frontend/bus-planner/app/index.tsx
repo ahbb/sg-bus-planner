@@ -1,7 +1,6 @@
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, ScrollView } from "react-native";
 import { router } from "expo-router";
 import ScreenWrapper from "./screens/screenwrapper";
-import { BACKEND_URL } from "./config/url"; 
 
 // npx expo start --tunnel (tunnel to make it work on mobile)
 // eas update --channel production
@@ -9,12 +8,14 @@ import { BACKEND_URL } from "./config/url";
 export default function Home() {
   return (
     <ScreenWrapper>
-      <View style={{ padding: 20 }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 20,
+          flexGrow: 1,
+        }}
+      >
         <Text style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}>
           Where are you going?
-        </Text>
-        <Text style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}>
-          Backend URL: {BACKEND_URL}
         </Text>
 
         <Button
@@ -38,7 +39,31 @@ export default function Home() {
             })
           }
         />
-      </View>
+
+        <View style={{ marginTop: 12 }} />
+
+        <Button
+          title="Kembangan Stn"
+          onPress={() =>
+            router.push({
+              pathname: "/screens/results",
+              params: { destination: "Kembangan Stn" },
+            })
+          }
+        />
+
+        <View style={{ marginTop: 12 }} />
+
+        <Button
+          title="Serangoon Stn"
+          onPress={() =>
+            router.push({
+              pathname: "/screens/results",
+              params: { destination: "Serangoon Stn" },
+            })
+          }
+        />
+      </ScrollView>
     </ScreenWrapper>
   );
 }
