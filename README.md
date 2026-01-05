@@ -11,6 +11,8 @@ The current functionality of the API (Still in progress)
 Install required packages
 ```sh
 pip install -r requirements.txt
+cd frontend/bus-planner
+npm i
 ```
 
 ## Starting API Server and Mobile App

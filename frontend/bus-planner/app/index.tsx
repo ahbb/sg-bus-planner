@@ -11,6 +11,9 @@ export default function Home() {
         <Text style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}>
           Where are you going?
         </Text>
+        <Text style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}>
+          OTA Test
+        </Text>
 
         <Button
           title="Ang Mo Kio Int"
@@ -33,7 +36,6 @@ export default function Home() {
             })
           }
         />
-
       </View>
     </ScreenWrapper>
   );
