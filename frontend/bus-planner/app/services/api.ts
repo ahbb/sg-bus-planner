@@ -1,7 +1,7 @@
 import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
 
 export async function compareBusArrivals(options: any) {
-  const response = await fetch(`${BACKEND_URL}/bus-arrival/compare`, {
+  const response = await fetch(`${BACKEND_URL_LIVE}/bus-arrival/compare`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
