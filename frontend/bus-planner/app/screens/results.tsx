@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, Button, ScrollView } from "react-native";
+import { View, Text, ActivityIndicator, Button, ScrollView, RefreshControl } from "react-native";
 import { useEffect, useState } from "react";
 import { compareBusArrivals } from "../services/api";
 import { useLocalSearchParams, router } from "expo-router";
@@ -10,6 +10,9 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<number>(0);
+  const REFRESH_COOLDOWN = 30 * 1000; // 30 seconds
 
   const { destination } = useLocalSearchParams<{
     destination: DestinationKey;
@@ -20,6 +23,7 @@ export default function Results() {
     async function load() {
       try {
         const data = await compareBusArrivals(config.options);
+        console.log("data.results: ",data.results);
         setResults(data.results);
       } catch (err) {
         setError("Failed to load bus data");
@@ -30,6 +34,24 @@ export default function Results() {
 
     load();
   }, [destination]);
+
+  const onRefresh = async () => {
+    const now = Date.now();
+    if (now - lastRefresh < REFRESH_COOLDOWN) {
+      return; // call api on refresh only every 30 seconds
+    }
+
+    setRefreshing(true);
+    try {
+      const data = await compareBusArrivals(config.options);
+      setResults(data.results);
+      setLastRefresh(now);
+    } catch (err) {
+      setError("Failed to refresh bus data");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (!config) {
     return <Text style={{ padding: 20 }}>Unknown destination</Text>;
@@ -60,6 +82,9 @@ export default function Results() {
           padding: 20,
           flexGrow: 1,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <Text style={{ fontSize: 20, marginBottom: 10 }}>Best buses to:</Text>
         <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destination}</Text>
@@ -94,9 +119,11 @@ export default function Results() {
                 <Text style={{ fontSize: 20, fontWeight: "bold" }}>
                   {item.service_no}
                 </Text>
-
+                
                 <Text style={{ fontSize: 16 }}>
-                  {item.eta_min === 0 ? "Arriving" : `${item.eta_min} min`}
+                  {/* Show the first one (NextBus) */}
+                  {/* Todo: show NextBus2 and NextBus3 if exist */}
+                  {item.eta_min === 0 ? "Arriving" : `${item.next_buses[0]?.eta_min} min`} 
                 </Text>
 
                 <Text style={{ fontSize: 14 }}>

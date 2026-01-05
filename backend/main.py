@@ -104,19 +104,29 @@ def compare_bus_arrivals(payload: CompareRequest):
         if not services:
             continue
         
-        service = services[0] # Get only the first one (NextBus)
-        eta = eta_in_minutes(service["NextBus"]["EstimatedArrival"])
-        if eta is None:
-            continue
+        service = services[0]
+        # Collect all 3 upcoming buses
+        next_buses = []
+        for key in ["NextBus", "NextBus2", "NextBus3"]:
+            bus_data = service.get(key)
+            if bus_data:
+                eta = eta_in_minutes(bus_data.get("EstimatedArrival"))
+                if eta is not None:
+                    next_buses.append({
+                    "eta_min": eta,
+                })
 
-        results.append({
-            "bus_stop_code": stop_code,
-            "service_no": service_no,
-            "eta_min": eta
-        })
+        # Only append if there is at least one ETA
+        if next_buses:
+            results.append({
+                "bus_stop_code": stop_code,
+                "service_no": service_no,
+                "next_buses": next_buses
+            })
     
-    # Sort by ETA
-    results.sort(key=lambda x: x["eta_min"])
+    # Sort by ETA of the first upcoming bus
+    results.sort(key=lambda x: x["next_buses"][0]["eta_min"])
+
     return {
         "results": results
     }
