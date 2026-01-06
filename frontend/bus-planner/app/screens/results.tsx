@@ -25,7 +25,6 @@ export default function Results() {
     async function load() {
       try {
         const data = await compareBusArrivals(config.options);
-        console.log("data.results: ",data.results);
         setResults(data.results);
       } catch (err) {
         setError("Failed to load bus data");
@@ -121,7 +120,6 @@ export default function Results() {
                 ]}
               >
                 <View
-                  key={index}
                   style={{
                     padding: 12,
                     marginBottom: 25,
