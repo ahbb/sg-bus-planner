@@ -112,6 +112,7 @@ export default function Results() {
 
             return (
               <Pressable
+                key={`${item.bus_stop_code}-${item.service_no}`}
                 onPress={() =>
                   setExpandedIndex(isExpanded ? null : index) // when item is already expanded, tapping it will set the expanded index to be null. (tapping an open item will cause it to be toggled to close) else, expand the selected unopened item, and collapse any previously expanded item
                 }
