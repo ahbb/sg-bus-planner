@@ -1,10 +1,11 @@
 import { View, Text, ActivityIndicator, Button, ScrollView, RefreshControl } from "react-native";
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import { compareBusArrivals } from "../services/api";
 import { useLocalSearchParams, router } from "expo-router";
 import { DESTINATIONS, DestinationKey } from "../config/destinations";
 import { BUS_STOP_MAP } from "../data/busStops";
 import ScreenWrapper from "./screenwrapper";
+import { Pressable } from "react-native";
 
 export default function Results() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +14,7 @@ export default function Results() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<number>(0);
   const REFRESH_COOLDOWN = 30 * 1000; // 30 seconds
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const { destination } = useLocalSearchParams<{
     destination: DestinationKey;
@@ -106,30 +108,64 @@ export default function Results() {
         ) : (
           results.map((item, index) => {
             const stop = BUS_STOP_MAP[item.bus_stop_code];
-            return (
-              <View
-                key={index}
-                style={{
-                  padding: 12,
-                  marginBottom: 25,
-                  borderWidth: 1,
-                  borderRadius: 8,
-                }}
-              >
-                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                  {item.service_no}
-                </Text>
-                
-                <Text style={{ fontSize: 16 }}>
-                  {/* Show the first one (NextBus) */}
-                  {/* Todo: show NextBus2 and NextBus3 if exist */}
-                  {item.eta_min === 0 ? "Arriving" : `${item.next_buses[0]?.eta_min} min`} 
-                </Text>
+            // ensure only one item expands at a time
+            const isExpanded = expandedIndex === index; // eg. index = 2, expandedIndex === index (2 === 2), isExpanded = true
 
-                <Text style={{ fontSize: 14 }}>
-                  {stop?.Description ?? "Unknown stop"}
-                </Text>
-              </View>
+            return (
+              <Pressable
+                onPress={() =>
+                  setExpandedIndex(isExpanded ? null : index) // when item is already expanded, tapping it will set the expanded index to be null. (tapping an open item will cause it to be toggled to close) else, expand the selected unopened item, and collapse any previously expanded item
+                }
+                style={({ pressed }) => [
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <View
+                  key={index}
+                  style={{
+                    padding: 12,
+                    marginBottom: 25,
+                    borderWidth: 1,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                    {item.service_no}
+                  </Text>
+
+                  {/* Tappable ETA */}
+                  <Text style={{ fontWeight: "bold", fontStyle: "italic"}}>
+                    {item.next_buses[0]?.eta_min <= 0
+                      ? "Arriving"
+                      : `${item.next_buses[0]?.eta_min} min`}
+                  </Text>
+
+                  {/* Inline expanded timings */}
+                  {isExpanded && (
+                    <>
+                      <Text style={{ marginTop: 6 }}>
+                        Next buses in:
+                      </Text>
+
+                      {item.next_buses.slice(1).map(
+                        (bus: { eta_min: number }, i: number) => (
+                          <Text
+                            key={i}
+                            style={{ fontSize: 14, marginLeft: 10, marginTop: 4 }}
+                          >
+                            • {bus.eta_min <= 0 ? "Arriving" : `${bus.eta_min} min`}
+                          </Text>
+                        )
+                      )}
+                    </>
+                  )}
+
+                  <Text style={{ fontSize: 14 }}>
+                    {stop?.Description ?? "Unknown stop"}
+                  </Text>
+
+                </View>
+              </Pressable>
             );
           })
         )}
