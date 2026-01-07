@@ -63,6 +63,20 @@ export default function Home() {
             })
           }
         />
+
+        <View style={{ marginTop: 48 }} />
+        
+
+        {/* Add destination */}
+        <Button
+          title="Add Destination"
+          onPress={() =>
+            router.push({
+              pathname: "/screens/addDestination",
+            })
+          }
+        />
+
       </ScrollView>
     </ScreenWrapper>
   );

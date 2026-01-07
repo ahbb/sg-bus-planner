@@ -193,18 +193,3 @@ def get_bus_arrival(bus_stop_code: str, service_no):
         "services": services
     }
 
-# Get bus stop information based on keyword
-@app.get("/bus-stops/search")
-def search_bus_stops(keyword: str, limit=20):
-    keyword = keyword.lower()
-    matches = [
-        stop for stop in BUS_STOPS
-        if keyword in stop["Description"].lower()
-    ]
-    return matches[:limit]
-
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    print("Incoming:", request.method, request.url)
-    return await call_next(request)
