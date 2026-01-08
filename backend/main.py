@@ -131,65 +131,42 @@ def compare_bus_arrivals(payload: CompareRequest):
         "results": results
     }
 
-
-# Get bus arrivals based on bus stop code and bus no.
-# TODO: make service no. non-mandatory
-@app.get("/bus-arrival")
-def get_bus_arrival(bus_stop_code: str, service_no):
-    params = {
-        "BusStopCode": bus_stop_code,
-        "ServiceNo": service_no
-    }
+# Get bus service numbers at particular bus stop code
+@app.get("/bus-services")
+def get_bus_services(bus_stop_code: str):
+    """
+    Returns a list of bus service numbers serving a bus stop
+    """
     if bus_stop_code not in VALID_BUS_STOP_CODES:
         raise HTTPException(
-            status_code=404,
-            detail="Invalid bus stop code."
+            status_code=400,
+            detail="Invalid bus stop code"
         )
 
     try:
-        response = requests.get(BUS_ARRIVAL_API_URL, headers=HEADERS, params=params, timeout=5)
+        response = requests.get(
+            BUS_ARRIVAL_API_URL,
+            headers=HEADERS,
+            params={"BusStopCode": bus_stop_code},
+            timeout=60
+        )
         response.raise_for_status()
     except requests.exceptions.Timeout:
-        raise HTTPException(
-            status_code=504,
-            detail="LTA Bus Arrival API timeout."
-        )
-    except requests.exceptions.RequestException:
-        raise HTTPException(
-            status_code=502,
-            detail="Error occured."
-        )
-    data = response.json()
-    services_raw = data.get("Services", [])
+        raise HTTPException(status_code=504, detail="LTA API timeout")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"LTA API error: {str(e)}")
     
-    services = []
-    for service in services_raw:
-        try:
-            services.append({
-                "service_no": service["ServiceNo"],
-                "next_bus_min": eta_in_minutes(
-                    service["NextBus"]["EstimatedArrival"]
-                ),
-                "next_bus2_min": eta_in_minutes(
-                    service["NextBus2"]["EstimatedArrival"]
-                ),
-                "next_bus3_min": eta_in_minutes(
-                    service["NextBus3"]["EstimatedArrival"]
-                ),
-            })
-        except KeyError:
-            # In case there are LTA API changes
-            continue
+    data = response.json()
+    services = data.get("Services", [])
 
+    # Return empty list if no services
     if not services:
-        raise HTTPException(
-            status_code=404,
-            detail="Invalid service number."
-        )
+        return {"bus_stop_code": bus_stop_code, "services": []}
+    
+    # Extract all bus service numbers
+    service_numbers = [service["ServiceNo"] for service in services]
 
     return {
         "bus_stop_code": bus_stop_code,
-        "service_no": service_no,
-        "services": services
+        "services": service_numbers
     }
-
