@@ -37,6 +37,7 @@ export default function AddDestination() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // for local dev
         }
       });
 
