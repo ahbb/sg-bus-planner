@@ -12,11 +12,45 @@ import busStops from "../data/bus_stops_241225.json";
 import { styles } from "./addDestinationStyles";
 import { BusStop, BUS_STOP_MAP } from "../data/busStops";
 import { router } from "expo-router";
+import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
 
 export default function AddDestination() {
+  type StopServicesMap = {
+    [busStopCode: string]: string[]; // eg. "63321": ["74", "165"]
+  }
+
   const [destinationName, setDestinationName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [stopServices, setStopServices] = useState<StopServicesMap>({});
+  const [loadingStops, setLoadingStops] = useState<Set<string>>(new Set());
+
+  // get bus services number based on bus stop code
+  const fetchBusServices = async (busStopCode: string) => {
+    const params = {
+      "bus_stop_code": busStopCode
+    }
+    const urlParams = new URLSearchParams(params);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/bus-services?${urlParams.toString()}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setStopServices((prev) => ({ // prev = previous value of stopServices. same as const prev = stopServices
+        ...prev, // copy all existing key-value pairs into new object
+        [busStopCode]: data.services,
+      }));
+    } catch (err) {
+      console.error("Failed to fetch bus services", err);
+    }
+  }
 
   /** SEARCH: array-based */
   const filteredStops = busStops.filter((stop: BusStop) => {
@@ -29,17 +63,30 @@ export default function AddDestination() {
   });
 
   /** Toggle selection using bus stop codes only */
-  const toggleStop = (code: string) => {
-    setSelectedCodes(
-      (prev) =>
-        // check whether code is already selected
-        // true: remove it from selection
-        // false: add it to selection
-        prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
-      // filter creates a new array, and keeps only elements that are not equal to code
-      // ...prev “spreads” all elements of the array into a new array, and then append bus stop code into it
-    );
-    setSearchQuery("");
+  const toggleStop = async (code: string) => {
+    setSelectedCodes((prev) => {
+      if (prev.includes(code)) {
+        return prev.filter((c) => c !== code);
+      } else {
+        return [...prev, code];
+      }
+    });
+    
+    // no bus services cached for the bus stop code
+    if (!stopServices[code]) {
+      // store bus stop codes currently loading (fetching from api)
+      setLoadingStops((prev) => new Set(prev).add(code));
+      await fetchBusServices(code);
+
+      // removes the stop from the loading Set after the API call completes
+      setLoadingStops((prev) => {
+        const copy = new Set(prev);
+        copy.delete(code);
+        return copy;
+      });
+    }
+
+    setSearchQuery(""); // hide flatlist after selection
   };
 
   const isSelected = (code: string) => selectedCodes.includes(code);
@@ -87,34 +134,39 @@ export default function AddDestination() {
           />
         )}
 
-        {/* Display selected bus stops */}
-        {selectedCodes.length > 0 && (
-          <>
-            <Text style={styles.label}>Selected bus stops:</Text>
+        {/* Display selected bus stops and respective bus service numbers */}
+        {selectedCodes.map((code) => {
+          const stop = BUS_STOP_MAP[code];
+          if (!stop) return null;
 
-            {selectedCodes.map((code) => {
-              const stop = BUS_STOP_MAP[code];
-              if (!stop) return null;
+          const services = stopServices[code];
 
-              return (
-                <Pressable
-                  key={code}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/screens/addDestination",
-                    })
-                  }
-                >
+          return (
+            <View key={code} style={{ marginBottom: 12 }}>
+              <Text style={styles.selectedText}>
+                • {stop.BusStopCode} - {stop.Description}
+              </Text>
 
-                  <Text key={code} style={styles.selectedText}>
-                    • {stop.BusStopCode} - {stop.Description}
-                  </Text>
-                  
-                </Pressable>
-              );
-            })}
-          </>
-        )}
+              {loadingStops.has(code) && (
+                <Text style={{ marginLeft: 10 }}>Loading buses…</Text>
+              )}
+
+              {services && services.length > 0 && (
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={{ fontWeight: "bold" }}>Available buses:</Text>
+                  {services.map((svc) => (
+                    <Text key={svc}>- {svc}</Text>
+                  ))}
+                </View>
+              )}
+
+              {services && services.length === 0 && (
+                <Text style={{ marginLeft: 10 }}>No services found</Text>
+              )}
+            </View>
+          );
+        })}
+
       </View>
     </ScreenWrapper>
   );
