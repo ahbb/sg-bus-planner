@@ -1,6 +1,5 @@
 // TODO: add selected bus numbers
-
-type SavedDestination = {
+export type SavedDestination = {
   id: string;                 // unique (uuid or timestamp)
   name: string;               // user input
   busStops: {
@@ -9,3 +8,7 @@ type SavedDestination = {
     roadName: string;
   }[];
 };
+
+export type StopServicesMap = {
+    [busStopCode: string]: string[]; // eg. "63321": ["74", "165"]
+  }

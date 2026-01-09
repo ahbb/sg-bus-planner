@@ -13,12 +13,9 @@ import { styles } from "./addDestinationStyles";
 import { BusStop, BUS_STOP_MAP } from "../data/busStops";
 import { router } from "expo-router";
 import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
+import { StopServicesMap } from "../model/saved_destination";
 
 export default function AddDestination() {
-  type StopServicesMap = {
-    [busStopCode: string]: string[]; // eg. "63321": ["74", "165"]
-  }
-
   const [destinationName, setDestinationName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
