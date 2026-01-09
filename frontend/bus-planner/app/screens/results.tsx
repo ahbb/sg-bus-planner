@@ -133,7 +133,7 @@ export default function Results() {
                   </Text>
 
                   {/* Tappable ETA */}
-                  <Text style={{ fontWeight: "bold", fontStyle: "italic"}}>
+                  <Text style={{ fontWeight: "bold", fontStyle: "italic" }}>
                     {item.next_buses[0]?.eta_min <= 0
                       ? "Arriving"
                       : `${item.next_buses[0]?.eta_min} min`}
@@ -146,6 +146,8 @@ export default function Results() {
                         Next buses in:
                       </Text>
 
+                      {/* map loops over each element in the array */}
+                      {/* bus = the current element in array. i = index of sliced array */}
                       {item.next_buses.slice(1).map(
                         (bus: { eta_min: number }, i: number) => (
                           <Text
