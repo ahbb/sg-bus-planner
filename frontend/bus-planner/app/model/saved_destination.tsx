@@ -1,4 +1,3 @@
-// TODO: add selected bus numbers
 export type SavedDestination = {
   id: string;                 // unique (uuid or timestamp)
   name: string;               // user input
@@ -6,6 +5,7 @@ export type SavedDestination = {
     busStopCode: string;
     description: string;
     roadName: string;
+    services: string[]; // selected bus services from the bus stop
   }[];
 };
 

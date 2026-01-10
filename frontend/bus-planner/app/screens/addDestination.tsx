@@ -22,6 +22,11 @@ export default function AddDestination() {
   const [stopServices, setStopServices] = useState<StopServicesMap>({});
   const [loadingStops, setLoadingStops] = useState<Set<string>>(new Set());
 
+  // same as selectedServices = {[busStopCode: string]: string[]}
+  // Keys → bus stop codes
+  // Values → arrays of selected bus service numbers
+  const [selectedServices, setSelectedServices] = useState<Record<string, string[]>>({});
+
   // get bus services number based on bus stop code
   const fetchBusServices = async (busStopCode: string) => {
     const params = {
@@ -50,7 +55,7 @@ export default function AddDestination() {
     }
   }
 
-  /** SEARCH: array-based */
+  /** Search bus stop: array-based */
   const filteredStops = busStops.filter((stop: BusStop) => {
     const q = searchQuery.toLowerCase();
     return (
@@ -76,7 +81,7 @@ export default function AddDestination() {
       setLoadingStops((prev) => new Set(prev).add(code));
       await fetchBusServices(code);
 
-      // removes the stop from the loading Set after the API call completes
+      // removes the stop from the loading set after the API call completes
       setLoadingStops((prev) => {
         const copy = new Set(prev);
         copy.delete(code);
@@ -88,6 +93,20 @@ export default function AddDestination() {
   };
 
   const isSelected = (code: string) => selectedCodes.includes(code);
+
+  // select bus services checkbox
+  const toggleService = (busStopCode: string, serviceNo: string) => {
+    setSelectedServices((prev) => {
+
+      // equivalent to const current = prev[busStopCode] !== undefined ? prev[busStopCode] : [];
+      const current = prev[busStopCode] ?? []; // if the bus stop has already selected services, use it. if not start with an empty array
+
+      return {
+        ...prev, // not modifyfing prev, instead creating a new object
+        [busStopCode]: current.includes(serviceNo) ? current.filter((s) => s !== serviceNo) : [...current, serviceNo], // if array already includes service number, remove it. if does not include, add it (toggling logic)
+      };
+    });
+  };
 
   return (
     <ScreenWrapper>
@@ -110,7 +129,7 @@ export default function AddDestination() {
           onChangeText={setSearchQuery}
         />
 
-        {/* Search results */}
+        {/* Search results as user types in add bus stops textbox */}
         {searchQuery.length > 0 && (
           <FlatList
             data={filteredStops.slice(0, 30)}
@@ -132,7 +151,7 @@ export default function AddDestination() {
           />
         )}
 
-        {/* Display selected bus stops and respective bus service numbers */}
+        {/* Display selected bus stops and respective bus service numbers with checkboxes */}
         {selectedCodes.map((code) => {
           const stop = BUS_STOP_MAP[code];
           if (!stop) return null;
@@ -152,9 +171,29 @@ export default function AddDestination() {
               {services && services.length > 0 && (
                 <View style={{ marginLeft: 12 }}>
                   <Text style={{ fontWeight: "bold" }}>Available buses:</Text>
-                  {services.map((svc) => (
-                    <Text key={svc}>- {svc}</Text>
-                  ))}
+
+                  {services.map((svc) => {
+                    const selected = selectedServices[code]?.includes(svc);
+
+                    return (
+                      <Pressable
+                        key={svc}
+                        onPress={() => toggleService(code, svc)}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginTop: 4,
+                        }}
+                      >
+                        <Text style={{ width: 20 }}>
+                          {selected ? "☑" : "☐"}
+                        </Text>
+                        <Text>{svc}</Text>
+                      </Pressable>
+
+                    );
+                  })}
+
                 </View>
               )}
 
