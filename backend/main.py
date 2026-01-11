@@ -67,12 +67,6 @@ def health_check():
 # Compare bus arrivals at different bus stops and sort by eta, to get to a common destination
 @app.post("/bus-arrival/compare")
 def compare_bus_arrivals(payload: CompareRequest):
-    if len(payload.options) < 2:
-        raise HTTPException(
-            status_code=400,
-            detail="At least two bus stop / service pairs are required"
-        )
-
     results = []    
     for option in payload.options:
         stop_code = option.bus_stop_code

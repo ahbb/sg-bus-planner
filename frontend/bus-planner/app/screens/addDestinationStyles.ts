@@ -32,6 +32,6 @@ export const styles = StyleSheet.create({
   },
   selectedText: {
     fontSize: 13,
-    marginTop: 4,
+    marginTop: 12,
   },
 });

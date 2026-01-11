@@ -5,7 +5,10 @@ import {
   Text,
   Pressable,
   FlatList,
+  Button,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import ScreenWrapper from "./screenwrapper";
 import busStops from "../data/bus_stops_241225.json";
@@ -13,7 +16,8 @@ import { styles } from "./addDestinationStyles";
 import { BusStop, BUS_STOP_MAP } from "../data/busStops";
 import { router } from "expo-router";
 import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
-import { StopServicesMap } from "../model/saved_destination";
+import { SavedDestination, StopServicesMap } from "../model/saved_destination";
+import { STORAGE_KEYS } from "../constants/storageKeys";
 
 export default function AddDestination() {
   const [destinationName, setDestinationName] = useState("");
@@ -96,16 +100,77 @@ export default function AddDestination() {
 
   // select bus services checkbox
   const toggleService = (busStopCode: string, serviceNo: string) => {
-    setSelectedServices((prev) => {
+    setSelectedServices((prev) => { // prev = previous value of the state (the entire previous selectedServices object)
 
-      // equivalent to const current = prev[busStopCode] !== undefined ? prev[busStopCode] : [];
-      const current = prev[busStopCode] ?? []; // if the bus stop has already selected services, use it. if not start with an empty array
+      const current = prev[busStopCode] ?? []; // looks up array of services for the bus stop code. if does not exist, use an empty array
+      // guarantees that current is always an array. Calling .includes() on undefined would crash.
 
       return {
-        ...prev, // not modifyfing prev, instead creating a new object
+        ...prev, // not modifying prev, instead creating a new object
+        // key:value
         [busStopCode]: current.includes(serviceNo) ? current.filter((s) => s !== serviceNo) : [...current, serviceNo], // if array already includes service number, remove it. if does not include, add it (toggling logic)
       };
     });
+  };
+
+  // save button logic. validation and save to async storage
+  const handleSave = async () => {
+    if (!destinationName.trim()) {
+      Alert.alert("Please input destination name.");
+    }
+
+    if (selectedCodes.length === 0) {
+      Alert.alert("Please select at least one bus stop.");
+    }
+
+    const hasAnyService = Object.values(selectedServices).some(
+      (services) => services.length > 0
+    );
+
+    if (!hasAnyService) {
+      Alert.alert("Please select at least one bus service.");
+      return;
+    }
+
+    // Build payload
+    const destinationToSave: SavedDestination = {
+      id: Date.now().toString(),
+      name: destinationName.trim(),
+      busStops: selectedCodes.map((code) => { // map transforms each bus stop code into a full object
+        const stop = BUS_STOP_MAP[code];
+        const services = selectedServices[code] ?? [];
+
+        if (!stop || services.length === 0) return null;
+
+        return {
+          busStopCode: stop.BusStopCode,
+          description: stop.Description,
+          roadName: stop.RoadName,
+          services,
+        };
+      })
+      .filter(Boolean) as SavedDestination["busStops"] // Removes all null values returned earlier and ensures busStops contains only valid objects
+    };
+
+
+    // Save to async storage
+    // AsyncStorage cannot append data. must read existing data, modify it and then write back
+    try {
+      const savedDestinations = await AsyncStorage.getItem(STORAGE_KEYS.SAVED_DESTINATIONS);
+      const existing: SavedDestination[] = savedDestinations ? JSON.parse(savedDestinations) : [];
+
+      await AsyncStorage.setItem( // persist to storage
+        STORAGE_KEYS.SAVED_DESTINATIONS,
+        JSON.stringify([...existing, destinationToSave]) // "..." creates a new array. appending new destination to it
+      );
+
+      Alert.alert("Saved", "Destination saved successfully.");
+      router.replace("/"); // redirect back to home screen
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "Failed to save destination.");
+    }
+
   };
 
   return (
@@ -143,7 +208,7 @@ export default function AddDestination() {
                 ]}
               >
                 <Text style={styles.stopTitle}>
-                  {item.BusStopCode} — {item.Description}
+                  {item.BusStopCode} - {item.Description}
                 </Text>
                 <Text style={styles.stopSubtitle}>{item.RoadName}</Text>
               </Pressable>
@@ -170,7 +235,7 @@ export default function AddDestination() {
 
               {services && services.length > 0 && (
                 <View style={{ marginLeft: 12 }}>
-                  <Text style={{ fontWeight: "bold" }}>Available buses:</Text>
+                  <Text style={{ fontWeight: "bold", marginTop: 12 }}>Select buses:</Text>
 
                   {services.map((svc) => {
                     const selected = selectedServices[code]?.includes(svc);
@@ -203,6 +268,13 @@ export default function AddDestination() {
             </View>
           );
         })}
+
+        <View style={{ marginTop: 24 }} />
+        {/* Button to save new destination input */}
+        <Button
+          title="Save"
+          onPress={handleSave}
+        />
 
       </View>
     </ScreenWrapper>
