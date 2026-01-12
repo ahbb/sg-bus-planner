@@ -18,10 +18,11 @@ npm i
 ## Starting API Server and Mobile App
 Note: LTA API Key is required to run some APIs
 ```sh
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000
 cd frontend/bus-planner
-npm run dev
+npx expo start --tunnel
 ```
-This command runs the API server and starts the mobile app due to a script written in package.json.
 
 ## Acknowledgments
 Land Transport Datamall  

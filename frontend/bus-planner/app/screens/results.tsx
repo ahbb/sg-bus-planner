@@ -1,11 +1,13 @@
-import { View, Text, ActivityIndicator, Button, ScrollView, RefreshControl } from "react-native";
+import { View, Text, ActivityIndicator, Button, ScrollView, RefreshControl, Pressable } from "react-native";
 import { Key, useEffect, useState } from "react";
 import { compareBusArrivals } from "../services/api";
 import { useLocalSearchParams, router } from "expo-router";
 import { DESTINATIONS, DestinationKey } from "../config/destinations";
 import { BUS_STOP_MAP } from "../data/busStops";
 import ScreenWrapper from "./screenwrapper";
-import { Pressable } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "../constants/storageKeys";
+import { SavedDestination } from "../model/saved_destination";
 
 export default function Results() {
   const [loading, setLoading] = useState(true);
@@ -15,17 +17,52 @@ export default function Results() {
   const [lastRefresh, setLastRefresh] = useState<number>(0);
   const REFRESH_COOLDOWN = 30 * 1000; // 30 seconds
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [destinationName, setDestinationName] = useState("");
 
-  const { destination } = useLocalSearchParams<{
-    destination: DestinationKey;
-  }>();
+  // for hardcoded destinations
+  const { destination } = useLocalSearchParams<{destination: DestinationKey;}>();
   const config = DESTINATIONS[destination];
+
+  // from async storage
+  const { destinationId } = useLocalSearchParams<{ destinationId: string }>();
+
+  // to transform savedDestination into the format for /compare api call
+  const buildCompareOptions = (dest: SavedDestination) => {
+    return dest.busStops.flatMap((stop) =>
+      stop.services.map((svc) => ({
+        bus_stop_code: stop.busStopCode,
+        service_no: svc, // each svc is a single service number in the map function
+      }))
+    );
+  };
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await compareBusArrivals(config.options);
-        setResults(data.results);
+        // check whether destination is from storage or hardcoded
+        // if destinationId exists, means button is from dynamic destination
+        if (destinationId) {
+          const raw = await AsyncStorage.getItem(
+            STORAGE_KEYS.SAVED_DESTINATIONS
+          );
+
+          if (!raw) throw new Error("No saved destinations");
+
+          const all: SavedDestination[] = JSON.parse(raw);
+          const dest = all.find((d) => d.id === destinationId);
+          if (!dest) throw new Error("Destination not found");
+
+          const options = buildCompareOptions(dest);
+
+          const data = await compareBusArrivals(options);
+          setResults(data.results);
+          setDestinationName(dest.name);
+
+        } else {
+          // for hardcoded destinations, use config from hardcoded DESTINATIONS
+          const data = await compareBusArrivals(config.options);
+          setResults(data.results);
+        }
       } catch (err) {
         setError("Failed to load bus data");
       } finally {
@@ -34,29 +71,29 @@ export default function Results() {
     }
 
     load();
-  }, [destination]);
+  }, [destination, destinationId]);
 
-  const onRefresh = async () => {
-    const now = Date.now();
-    if (now - lastRefresh < REFRESH_COOLDOWN) {
-      return; // call api on refresh only every 30 seconds
-    }
+  // const onRefresh = async () => {
+  //   const now = Date.now();
+  //   if (now - lastRefresh < REFRESH_COOLDOWN) {
+  //     return; // call api on refresh only every 30 seconds
+  //   }
 
-    setRefreshing(true);
-    try {
-      const data = await compareBusArrivals(config.options);
-      setResults(data.results);
-      setLastRefresh(now);
-    } catch (err) {
-      setError("Failed to refresh bus data");
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  //   setRefreshing(true);
+  //   try {
+  //     const data = await compareBusArrivals(config.options);
+  //     setResults(data.results);
+  //     setLastRefresh(now);
+  //   } catch (err) {
+  //     setError("Failed to refresh bus data");
+  //   } finally {
+  //     setRefreshing(false);
+  //   }
+  // };
 
-  if (!config) {
-    return <Text style={{ padding: 20 }}>Unknown destination</Text>;
-  }
+  // if (!config) {
+  //   return <Text style={{ padding: 20 }}>Unknown destination</Text>;
+  // }
 
   if (loading) {
     return (
@@ -84,11 +121,12 @@ export default function Results() {
           flexGrow: 1,
         }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} />
         }
       >
-        <Text style={{ fontSize: 20, marginBottom: 10 }}>Best buses to:</Text>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destination}</Text>
+        <Text style={{ fontSize: 20, marginBottom: 10 }}>Best buses for:</Text>
+        {destinationName && <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destinationName}</Text>}
+        {destination && <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destination}</Text>}
 
         <View style={{ marginTop: 12 }} />
 
@@ -113,12 +151,10 @@ export default function Results() {
             return (
               <Pressable
                 key={`${item.bus_stop_code}-${item.service_no}`}
-                onPress={() =>
-                  setExpandedIndex(isExpanded ? null : index) // when item is already expanded, tapping it will set the expanded index to be null. (tapping an open item will cause it to be toggled to close) else, expand the selected unopened item, and collapse any previously expanded item
+                onPress={
+                  () => setExpandedIndex(isExpanded ? null : index) // when item is already expanded, tapping it will set the expanded index to be null. (tapping an open item will cause it to be toggled to close) else, expand the selected unopened item, and collapse any previously expanded item
                 }
-                style={({ pressed }) => [
-                  pressed && { opacity: 0.8 },
-                ]}
+                style={({ pressed }) => [pressed && { opacity: 0.8 }]}
               >
                 <View
                   style={{
@@ -142,29 +178,33 @@ export default function Results() {
                   {/* Inline expanded timings */}
                   {isExpanded && (
                     <>
-                      <Text style={{ marginTop: 6 }}>
-                        Next buses in:
-                      </Text>
+                      <Text style={{ marginTop: 6 }}>Next buses in:</Text>
 
                       {/* map loops over each element in the array */}
                       {/* bus = the current element in array. i = index of sliced array */}
-                      {item.next_buses.slice(1).map(
-                        (bus: { eta_min: number }, i: number) => (
+                      {item.next_buses
+                        .slice(1)
+                        .map((bus: { eta_min: number }, i: number) => (
                           <Text
                             key={i}
-                            style={{ fontSize: 14, marginLeft: 10, marginTop: 4 }}
+                            style={{
+                              fontSize: 14,
+                              marginLeft: 10,
+                              marginTop: 4,
+                            }}
                           >
-                            • {bus.eta_min <= 0 ? "Arriving" : `${bus.eta_min} min`}
+                            •{" "}
+                            {bus.eta_min <= 0
+                              ? "Arriving"
+                              : `${bus.eta_min} min`}
                           </Text>
-                        )
-                      )}
+                        ))}
                     </>
                   )}
 
                   <Text style={{ fontSize: 14 }}>
                     {stop?.Description ?? "Unknown stop"}
                   </Text>
-
                 </View>
               </Pressable>
             );

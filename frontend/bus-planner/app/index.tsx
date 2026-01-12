@@ -93,14 +93,19 @@ export default function Home() {
         />
 
         {/* Load saved destinations from storage */}
-        {/* TODO: make it correct format such that it will be able to call compare api successfully */}
         {savedDestinations.length > 0 && (
           <>
             {savedDestinations.map((dest) => (
-              <View key={dest.id}
-                style={{ marginTop: 12 }}>
+              <View key={dest.id} style={{ marginTop: 12 }}>
                 <Button
                   title={dest.name}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/screens/results",
+                      // using id to pass to results screen for dynamic destinations
+                      params: { destinationId: dest.id },
+                    })
+                  }
                 />
               </View>
             ))}
@@ -120,13 +125,9 @@ export default function Home() {
         />
 
         <View style={{ marginTop: 48 }} />
-        
-        {/* Temporary delete storage button */}
-        <Button
-          title="Delete storage (dev)"
-          onPress={clearAllDestinations}
-        />
 
+        {/* Temporary delete storage button */}
+        <Button title="Delete storage (dev)" onPress={clearAllDestinations} />
       </ScrollView>
     </ScreenWrapper>
   );

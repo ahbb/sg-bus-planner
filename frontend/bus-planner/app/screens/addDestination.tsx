@@ -7,6 +7,7 @@ import {
   FlatList,
   Button,
   Alert,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
@@ -141,7 +142,7 @@ export default function AddDestination() {
         const services = selectedServices[code] ?? [];
 
         if (!stop || services.length === 0) return null;
-
+        
         return {
           busStopCode: stop.BusStopCode,
           description: stop.Description,
@@ -151,7 +152,6 @@ export default function AddDestination() {
       })
       .filter(Boolean) as SavedDestination["busStops"] // Removes all null values returned earlier and ensures busStops contains only valid objects
     };
-
 
     // Save to async storage
     // AsyncStorage cannot append data. must read existing data, modify it and then write back
@@ -170,12 +170,11 @@ export default function AddDestination() {
       console.error(err);
       Alert.alert("Error", "Failed to save destination.");
     }
-
   };
 
   return (
     <ScreenWrapper>
-      <View style={styles.container}>
+      <ScrollView>
         {/* Destination name */}
         <Text style={styles.label}>Your destination:</Text>
         <TextInput
@@ -276,7 +275,7 @@ export default function AddDestination() {
           onPress={handleSave}
         />
 
-      </View>
+      </ScrollView>
     </ScreenWrapper>
   );
 }
