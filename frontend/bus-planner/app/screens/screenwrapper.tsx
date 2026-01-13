@@ -9,7 +9,7 @@ type ScreenWrapperProps = {
 
 export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
     return (
-        <View style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
             <StatusBar backgroundColor="#0556ad" barStyle="light-content" translucent={false} />
 
             {/* Top inset: status bar background */}
@@ -25,7 +25,7 @@ export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
                 {/* Screen content */}
                 <View style={styles.content}>{children}</View>
             </SafeAreaView>
-        </View>
+        </SafeAreaView>
     );
 }
 
