@@ -187,6 +187,7 @@ export default function AddDestination() {
             <TextInput
               style={styles.input}
               placeholder="e.g. Work, School"
+              placeholderTextColor={"#666"}
               value={destinationName}
               onChangeText={setDestinationName}
             />
@@ -195,6 +196,7 @@ export default function AddDestination() {
             <TextInput
               style={styles.input}
               placeholder="Bus stop code or location"
+              placeholderTextColor={"#666"}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
