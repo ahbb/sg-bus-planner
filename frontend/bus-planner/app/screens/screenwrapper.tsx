@@ -11,19 +11,16 @@ export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
     return (
         <>
             <StatusBar backgroundColor="#0556ad" barStyle="light-content" translucent={false} />
-
-            {/* Top inset: status bar background */}
-            <SafeAreaView style={{ flex: 0, backgroundColor: "#0556ad" }} />
-
-            {/* Main content */}
             <SafeAreaView style={{ flex: 1 }}>
-                {/* Custom Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
-                </View>
+                <View style={{ flex: 1 }}>
+                    {/* Custom Header */}
+                    <View style={styles.header}>
+                        <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
+                    </View>
 
-                {/* Screen content */}
-                <View style={styles.content}>{children}</View>
+                    {/* Screen content */}
+                    <View style={styles.content}>{children}</View>
+                </View>
             </SafeAreaView>
         </>
     );
