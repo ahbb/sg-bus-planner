@@ -41,7 +41,7 @@ export default function AddDestination() {
     const urlParams = new URLSearchParams(params);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/bus-services?${urlParams.toString()}`, {
+      const res = await fetch(`${BACKEND_URL_LIVE}/bus-services?${urlParams.toString()}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -173,112 +173,112 @@ export default function AddDestination() {
     }
   };
 
-  // TODO: solve virtualizedlist warning
+  // flatlist cannot be nested inside a scrollview with the same scroll direction
   return (
     <ScreenWrapper>
-      <ScrollView>
-        {/* Destination name */}
-        <Text style={styles.label}>Your destination:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Work, School"
-          value={destinationName}
-          onChangeText={setDestinationName}
-        />
+      <FlatList
+        data={searchQuery.length > 0 ? filteredStops.slice(0, 30) : []}
+        keyExtractor={(item) => item.BusStopCode}
+        keyboardShouldPersistTaps="handled"
 
-        {/* Search */}
-        <Text style={styles.label}>Add bus stops:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Bus stop code or location"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+        ListHeaderComponent={
+          <>
+            <Text style={styles.label}>Your destination:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Work, School"
+              value={destinationName}
+              onChangeText={setDestinationName}
+            />
 
-        {/* Search results as user types in add bus stops textbox */}
-        {searchQuery.length > 0 && (
-          <FlatList
-            data={filteredStops.slice(0, 30)}
-            keyExtractor={(item) => item.BusStopCode}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => toggleStop(item.BusStopCode)}
-                style={[
-                  styles.stopItem,
-                  isSelected(item.BusStopCode) && styles.selected,
-                ]}
-              >
-                <Text style={styles.stopTitle}>
-                  {item.BusStopCode} - {item.Description}
-                </Text>
-                <Text style={styles.stopSubtitle}>{item.RoadName}</Text>
-              </Pressable>
-            )}
-          />
-        )}
-
-        {/* Display selected bus stops and respective bus service numbers with checkboxes */}
-        {selectedCodes.map((code) => {
-          const stop = BUS_STOP_MAP[code];
-          if (!stop) return null;
-
-          const services = stopServices[code];
-
-          return (
-            <View key={code} style={{ marginBottom: 12 }}>
-              <Text style={styles.selectedText}>
-                • {stop.BusStopCode} - {stop.Description}
-              </Text>
-
-              {loadingStops.has(code) && (
-                <Text style={{ marginLeft: 10 }}>Loading buses…</Text>
-              )}
-
-              {services && services.length > 0 && (
-                <View style={{ marginLeft: 12 }}>
-                  <Text style={{ fontWeight: "bold", marginTop: 12 }}>Select buses:</Text>
-
-                  {services.map((svc) => {
-                    const selected = selectedServices[code]?.includes(svc);
-
-                    return (
-                      <Pressable
-                        key={svc}
-                        onPress={() => toggleService(code, svc)}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          marginTop: 4,
-                        }}
-                      >
-                        <Text style={{ width: 20 }}>
-                          {selected ? "☑" : "☐"}
-                        </Text>
-                        <Text>{svc}</Text>
-                      </Pressable>
-
-                    );
-                  })}
-
-                </View>
-              )}
-
-              {services && services.length === 0 && (
-                <Text style={{ marginLeft: 10 }}>No services found</Text>
-              )}
-            </View>
-          );
-        })}
-
-        <View style={{ marginTop: 24 }} />
+            <Text style={styles.label}>Add bus stops:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Bus stop code or location"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </>
+        }
         
-        {/* Button to save new destination input */}
-        <AppButton
-          title="Save"
-          onPress={handleSave}
-        />
+        // renderItem - tells flatlist how to render the items from data (when user searches, the suggestions come out as pressable). this will be called multiple times as user performs search
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => toggleStop(item.BusStopCode)}
+            style={[
+              styles.stopItem,
+              isSelected(item.BusStopCode) && styles.selected,
+            ]}
+          >
+            <Text style={styles.stopTitle}>
+              {item.BusStopCode} - {item.Description}
+            </Text>
+            <Text style={styles.stopSubtitle}>{item.RoadName}</Text>
+          </Pressable>
+        )}
+        
+        // ListFooterComponent = content rendered once, below the flatlist
+        ListFooterComponent={
+          <>
+            {selectedCodes.map((code) => {
+              const stop = BUS_STOP_MAP[code];
+              if (!stop) return null;
 
-      </ScrollView>
+              const services = stopServices[code];
+
+              return (
+                <View key={code} style={{ marginBottom: 12 }}>
+                  <Text style={styles.selectedText}>
+                    • {stop.BusStopCode} - {stop.Description}
+                  </Text>
+
+                  {loadingStops.has(code) && (
+                    <Text style={{ marginLeft: 10 }}>Loading buses…</Text>
+                  )}
+
+                  {services?.length > 0 && (
+                    <View style={{ marginLeft: 12 }}>
+                      <Text style={{ fontWeight: "bold", marginTop: 4 }}>
+                        Select buses:
+                      </Text>
+
+                      {services.map((svc) => {
+                        const selected = selectedServices[code]?.includes(svc);
+
+                        return (
+                          <Pressable
+                            key={svc}
+                            onPress={() => toggleService(code, svc)}
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              marginTop: 12,
+                            }}
+                          >
+                            <Text style={{ width: 20 }}>
+                              {selected ? "☑" : "☐"}
+                            </Text>
+                            <Text style={{ fontSize: 14 }}>{svc}</Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  )}
+
+                  {services?.length === 0 && (
+                    <Text style={{ marginLeft: 10 }}>No services found</Text>
+                  )}
+                </View>
+              );
+            })}
+
+            <View style={{ marginTop: 24 }} />
+
+            <AppButton title="Save" onPress={handleSave} />
+          </>
+        }
+      />
     </ScreenWrapper>
   );
+
 }

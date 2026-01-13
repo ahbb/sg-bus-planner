@@ -31,7 +31,8 @@ export const styles = StyleSheet.create({
     color: "#555",
   },
   selectedText: {
-    fontSize: 13,
+    fontSize: 15,
     marginTop: 12,
+    fontWeight: "bold"
   },
 });
