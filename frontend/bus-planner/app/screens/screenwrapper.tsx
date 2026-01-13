@@ -1,7 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, StatusBar } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 
 type ScreenWrapperProps = {
     children: React.ReactNode;
@@ -12,7 +11,7 @@ type ScreenWrapperProps = {
 export default function ScreenWrapper({ children, title, showBack }: ScreenWrapperProps) {
     return (
         <>
-        <StatusBar backgroundColor="#0556ad"/>
+        <StatusBar backgroundColor="#0556ad" barStyle="light-content"/>
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
                 {/* Custom Header */}
