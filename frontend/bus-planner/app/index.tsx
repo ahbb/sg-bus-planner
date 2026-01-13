@@ -10,6 +10,7 @@ import { FAB } from "react-native-elements";
 
 // npx expo start --tunnel (tunnel to make it work on mobile)
 // eas update --channel production (to view changes on built app)
+// eas build -p android --profile production (to rebuild when there are native runtime changes such as in app.json)
 
 export default function Home() {
   const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);

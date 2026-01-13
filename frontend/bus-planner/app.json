@@ -8,6 +8,10 @@
     "scheme": "busplanner",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "androidStatusBar": {
+      "backgroundColor": "#0556ad",
+      "barStyle": "light-content"
+    },
     "ios": {
       "supportsTablet": true
     },
