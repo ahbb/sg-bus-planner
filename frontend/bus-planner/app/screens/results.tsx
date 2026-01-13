@@ -8,6 +8,7 @@ import ScreenWrapper from "./screenwrapper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storageKeys";
 import { SavedDestination } from "../model/saved_destination";
+import { AppButton } from "./appButton";
 
 export default function Results() {
   const [loading, setLoading] = useState(true);
@@ -212,7 +213,7 @@ export default function Results() {
         )}
 
         {/* Back to Home button */}
-        <Button title="⬅ Home" onPress={() => router.push("/")} />
+        <AppButton title="⬅ Home" onPress={() => router.push("/")} />
       </ScrollView>
     </ScreenWrapper>
   );

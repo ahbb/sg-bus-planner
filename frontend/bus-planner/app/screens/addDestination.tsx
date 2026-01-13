@@ -19,6 +19,7 @@ import { router } from "expo-router";
 import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
 import { SavedDestination, StopServicesMap } from "../model/saved_destination";
 import { STORAGE_KEYS } from "../constants/storageKeys";
+import { AppButton } from "./appButton";
 
 export default function AddDestination() {
   const [destinationName, setDestinationName] = useState("");
@@ -40,7 +41,7 @@ export default function AddDestination() {
     const urlParams = new URLSearchParams(params);
 
     try {
-      const res = await fetch(`${BACKEND_URL_LIVE}/bus-services?${urlParams.toString()}`, {
+      const res = await fetch(`${BACKEND_URL}/bus-services?${urlParams.toString()}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -172,6 +173,7 @@ export default function AddDestination() {
     }
   };
 
+  // TODO: solve virtualizedlist warning
   return (
     <ScreenWrapper>
       <ScrollView>
@@ -269,8 +271,9 @@ export default function AddDestination() {
         })}
 
         <View style={{ marginTop: 24 }} />
+        
         {/* Button to save new destination input */}
-        <Button
+        <AppButton
           title="Save"
           onPress={handleSave}
         />

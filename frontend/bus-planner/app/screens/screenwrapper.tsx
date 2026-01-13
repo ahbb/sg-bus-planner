@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 type ScreenWrapperProps = {
     children: React.ReactNode;
@@ -9,29 +11,33 @@ type ScreenWrapperProps = {
 
 export default function ScreenWrapper({ children, title, showBack }: ScreenWrapperProps) {
     return (
-        <View style={{ flex: 1 }}>
-            {/* Custom Header */}
-            <View style={styles.header}>
-                {showBack && (
-                    <Text style={styles.back} onPress={() => router.back()}>
-                        ⬅
-                    </Text>
-                )}
-                <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
-            </View>
+        <>
+        <StatusBar backgroundColor="#0556ad"/>
+        <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+                {/* Custom Header */}
+                <View style={styles.header}>
+                    {showBack && (
+                        <Text style={styles.back} onPress={() => router.back()}>
+                            ⬅
+                        </Text>
+                    )}
+                    <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
+                </View>
 
-            {/* Screen content */}
-            <View style={styles.content}>{children}</View>
-        </View>
+                {/* Screen content */}
+                <View style={styles.content}>{children}</View>
+            </View>
+        </SafeAreaView>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     header: {
-        height: 60,
+        height: 48,
         backgroundColor: "#007AFF",
         justifyContent: "center",
-        paddingTop: 15,
         paddingLeft: 15
     },
     back: {
@@ -50,4 +56,8 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
     },
+    side: {
+        width: 40,
+        alignItems: "flex-start"
+    }
 });
