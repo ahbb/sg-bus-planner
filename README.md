@@ -1,8 +1,14 @@
 # SG Bus Planner
 App to allow users to compare bus arrivals at different bus stops to decide which one to take. Useful in cases where the user has multiple choices between different buses at different bus stops to get to a common destination.
 
-## Example
-The current functionality of the API (Still in progress)
+## Mobile App
+Some screenshots of the mobile app:  
+<img src="/screenshots/bus-planner1.jpg" alt="busplanner1" width=250/>
+<img src="/screenshots/bus-planner2.jpg" alt="busplanner2" width=250/>
+<img src="/screenshots/bus-planner3.jpg" alt="busplanner3" width=250/>
+
+## Backend
+Compare API
 ![Screenshot_261225](/screenshot.png?raw=true)
 
 ## Getting Started
