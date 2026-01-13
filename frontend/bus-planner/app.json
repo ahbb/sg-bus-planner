@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "androidStatusBar": {
       "backgroundColor": "#0556ad",
-      "barStyle": "light-content"
+      "barStyle": "light-content",
+      "translucent": false
     },
     "ios": {
       "supportsTablet": true
