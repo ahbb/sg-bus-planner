@@ -5,36 +5,33 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type ScreenWrapperProps = {
     children: React.ReactNode;
     title?: string;
-    showBack?: boolean;
 };
 
-export default function ScreenWrapper({ children, title, showBack }: ScreenWrapperProps) {
+export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
     return (
-        <>
-        <StatusBar backgroundColor="#0556ad" barStyle="light-content"/>
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+            <StatusBar backgroundColor="#0556ad" barStyle="light-content" translucent={false} />
+
+            {/* Top inset: status bar background */}
+            <SafeAreaView style={{ flex: 0, backgroundColor: "#0556ad" }} />
+
+            {/* Main content */}
+            <SafeAreaView style={{ flex: 1 }}>
                 {/* Custom Header */}
                 <View style={styles.header}>
-                    {showBack && (
-                        <Text style={styles.back} onPress={() => router.back()}>
-                            ⬅
-                        </Text>
-                    )}
                     <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
                 </View>
 
                 {/* Screen content */}
                 <View style={styles.content}>{children}</View>
-            </View>
-        </SafeAreaView>
-        </>
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     header: {
-        height: 48,
+        height: 50,
         backgroundColor: "#007AFF",
         justifyContent: "center",
         paddingLeft: 15
