@@ -16,10 +16,10 @@ export default function Home() {
 
   // Default harcoded destinations
   const destinations = [
-    { id: "1", label: "Home to Ang Mo Kio Int", value: "Ang Mo Kio Int" },
-    { id: "2", label: "Home to Hougang Int", value: "Hougang Int" },
-    { id: "3", label: "Home to Kembangan Stn", value: "Kembangan Stn" },
-    { id: "4", label: "Home to Serangoon Stn", value: "Serangoon Stn" },
+    { id: "1", label: "Home to Ang Mo Kio Int", value: "Home to Ang Mo Kio Int" },
+    { id: "2", label: "Home to Hougang Int", value: "Home to Hougang Int" },
+    { id: "3", label: "Home to Kembangan Stn", value: "Home to Kembangan Stn" },
+    { id: "4", label: "Home to Serangoon Stn", value: "Home to Serangoon Stn" },
   ];
 
   // Load saved destinations from async storage
