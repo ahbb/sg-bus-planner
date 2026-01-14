@@ -97,7 +97,9 @@ export default function Home() {
       {/* <AppButton title="Delete storage (dev)" onPress={clearAllDestinations} /> */}
       
       {/* Add destination button */}
-      <FAB title="Add" placement="right" upperCase={true} color="#2563eb" style={{paddingBottom: 30, paddingRight: 15}} onPress={() =>
+      <FAB title="Add" placement="right" upperCase={true} color="#2563eb"
+          style = {styles.button}
+          onPress={() =>
           router.push({
             pathname: "/screens/addDestination",
           })}>
@@ -140,4 +142,8 @@ const styles = StyleSheet.create({
     separator: {
         height: 12,
     },
+    button: {
+      paddingBottom: 50,
+      paddingRight: 15
+    }
 });
