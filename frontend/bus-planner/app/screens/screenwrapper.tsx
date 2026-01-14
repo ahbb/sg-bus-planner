@@ -10,7 +10,7 @@ type ScreenWrapperProps = {
 export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
     return (
         <>
-            <StatusBar backgroundColor="#0556ad" />
+            <StatusBar backgroundColor="#0556ad" translucent={true} />
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
                     {/* Custom Header */}
