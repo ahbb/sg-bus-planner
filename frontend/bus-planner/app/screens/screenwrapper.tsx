@@ -11,8 +11,8 @@ type ScreenWrapperProps = {
 export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
     return (
         <>
-            <StatusBar backgroundColor="#0556ad" />
-            <SafeAreaView style={{ flex: 1 }}>
+            {/* <StatusBar backgroundColor="#0556ad" /> */}
+            <View style={{ flex: 1}}>
                 <View style={{ flex: 1 }}>
                     {/* Custom Header */}
                     <View style={styles.header}>
@@ -22,14 +22,14 @@ export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
                     {/* Screen content */}
                     <View style={styles.content}>{children}</View>
                 </View>
-            </SafeAreaView>
+            </View>
         </>
     );
 }
 
 const styles = StyleSheet.create({
     header: {
-        height: 50,
+        height: 80,
         backgroundColor: "#007AFF",
         justifyContent: "center",
         paddingLeft: 15
@@ -44,7 +44,8 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 20,
         fontWeight: "bold",
-        textAlign: "left"
+        textAlign: "left",
+        paddingTop: 20
     },
     content: {
         flex: 1,
