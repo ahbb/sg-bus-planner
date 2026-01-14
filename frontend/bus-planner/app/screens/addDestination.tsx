@@ -135,6 +135,14 @@ export default function AddDestination() {
       return;
     }
 
+    // Object.values = converts the object into an array of its values
+    // reduce iterates over each array and total keeps track of the number of services
+    const count = Object.values(selectedServices).reduce((total, services) => total + services.length, 0); // total number of services
+    if (count > 10) {
+      Alert.alert("More than 10 services are not allowed.");
+      return;
+    }
+
     // Build payload
     const destinationToSave: SavedDestination = {
       id: Date.now().toString(),
