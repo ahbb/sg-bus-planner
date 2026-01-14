@@ -7,7 +7,7 @@ import {
   FlatList,
   Button,
   Alert,
-  ScrollView,
+  ScrollView
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
@@ -20,6 +20,7 @@ import { BACKEND_URL, BACKEND_URL_LIVE } from "../config/url";
 import { SavedDestination, StopServicesMap } from "../model/saved_destination";
 import { STORAGE_KEYS } from "../constants/storageKeys";
 import { AppButton } from "./appButton";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddDestination() {
   const [destinationName, setDestinationName] = useState("");
@@ -180,7 +181,6 @@ export default function AddDestination() {
         data={searchQuery.length > 0 ? filteredStops.slice(0, 30) : []}
         keyExtractor={(item) => item.BusStopCode}
         keyboardShouldPersistTaps="handled"
-
         ListHeaderComponent={
           <>
             <Text style={styles.label}>Your destination:</Text>
@@ -202,7 +202,6 @@ export default function AddDestination() {
             />
           </>
         }
-        
         // renderItem - tells flatlist how to render the items from data (when user searches, the suggestions come out as pressable). this will be called multiple times as user performs search
         renderItem={({ item }) => (
           <Pressable
@@ -218,7 +217,6 @@ export default function AddDestination() {
             <Text style={styles.stopSubtitle}>{item.RoadName}</Text>
           </Pressable>
         )}
-        
         // ListFooterComponent = content rendered once, below the flatlist
         ListFooterComponent={
           <>
@@ -274,9 +272,9 @@ export default function AddDestination() {
               );
             })}
 
-            <View style={{ marginTop: 24 }} />
-
-            <AppButton title="Save" onPress={handleSave} />
+            <SafeAreaView>
+              <AppButton title="Save" onPress={handleSave} />
+            </SafeAreaView>
           </>
         }
       />

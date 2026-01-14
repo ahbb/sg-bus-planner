@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "./constants/storageKeys";
 import { AppButton } from "./screens/appButton";
 import { FAB } from "react-native-elements";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // npx expo start --tunnel (tunnel to make it work on mobile)
 // eas update --channel production (to view changes on built app)
@@ -82,10 +83,7 @@ export default function Home() {
                 });
               }
             }}
-            style={({ pressed }) => [
-              styles.row,
-              pressed && styles.rowPressed,
-            ]}
+            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
           >
             <Text style={styles.rowText}>{item.label}</Text>
             <Text style={styles.chevron}>›</Text>
@@ -95,17 +93,22 @@ export default function Home() {
 
       {/* Temporary delete storage button */}
       {/* <AppButton title="Delete storage (dev)" onPress={clearAllDestinations} /> */}
-      
+
       {/* Add destination button */}
-      <FAB title="Add" placement="right" upperCase={true} color="#2563eb"
-          style = {styles.button}
+      <SafeAreaView>
+        <FAB
+          title="Add"
+          placement="right"
+          upperCase={true}
+          color="#2563eb"
+          style={styles.button}
           onPress={() =>
-          router.push({
-            pathname: "/screens/addDestination",
-          })}>
-
-      </FAB>
-
+            router.push({
+              pathname: "/screens/addDestination",
+            })
+          }
+        ></FAB>
+      </SafeAreaView>
     </ScreenWrapper>
   );
 }
@@ -113,7 +116,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingVertical: 8,
+        paddingVertical: 8
     },
     row: {
         backgroundColor: "#ffffff",
@@ -126,24 +129,23 @@ const styles = StyleSheet.create({
         elevation: 1, // Android
         shadowColor: "#000", // iOS
         shadowOpacity: 0.05,
-        shadowRadius: 4,
+        shadowRadius: 4
     },
     rowPressed: {
-        opacity: 0.7,
+        opacity: 0.7
     },
     rowText: {
         fontSize: 16,
-        fontWeight: "500",
+        fontWeight: "500"
     },
     chevron: {
         fontSize: 20,
-        color: "#9ca3af",
+        color: "#9ca3af"
     },
     separator: {
-        height: 12,
+        height: 12
     },
     button: {
-      paddingBottom: 50,
-      paddingRight: 15
+      paddingBottom: 20
     }
 });

@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storageKeys";
 import { SavedDestination } from "../model/saved_destination";
 import { AppButton } from "./appButton";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Results() {
   const [loading, setLoading] = useState(true);
@@ -121,13 +122,19 @@ export default function Results() {
           padding: 20,
           flexGrow: 1,
         }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} />}
       >
         <Text style={{ fontSize: 20, marginBottom: 10 }}>Best buses for:</Text>
-        {destinationName && <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destinationName}</Text>}
-        {destination && <Text style={{ fontSize: 24, fontWeight: "bold" }}>{destination}</Text>}
+        {destinationName && (
+          <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+            {destinationName}
+          </Text>
+        )}
+        {destination && (
+          <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+            {destination}
+          </Text>
+        )}
 
         <View style={{ marginTop: 12 }} />
 
@@ -213,7 +220,9 @@ export default function Results() {
         )}
 
         {/* Back to Home button */}
-        <AppButton title="⬅ Home" onPress={() => router.push("/")} />
+        <SafeAreaView>
+          <AppButton title="⬅ Home" onPress={() => router.push("/")} />
+        </SafeAreaView>
       </ScrollView>
     </ScreenWrapper>
   );

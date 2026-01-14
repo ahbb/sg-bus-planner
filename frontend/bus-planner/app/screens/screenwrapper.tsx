@@ -9,22 +9,20 @@ type ScreenWrapperProps = {
 };
 
 export default function ScreenWrapper({ children, title }: ScreenWrapperProps) {
-    return (
-        <>
-            {/* <StatusBar backgroundColor="#0556ad" /> */}
-            <View style={{ flex: 1}}>
-                <View style={{ flex: 1 }}>
-                    {/* Custom Header */}
-                    <View style={styles.header}>
-                        <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
-                    </View>
+  return (
+    <>
+      {/* <StatusBar backgroundColor="#0556ad" /> */}
+      <View style={{ flex: 1 }}>
+        {/* Custom Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>{title ?? "Bus Planner 🚌"}</Text>
+        </View>
 
-                    {/* Screen content */}
-                    <View style={styles.content}>{children}</View>
-                </View>
-            </View>
-        </>
-    );
+        {/* Screen content */}
+        <View style={styles.content}>{children}</View>
+      </View>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
