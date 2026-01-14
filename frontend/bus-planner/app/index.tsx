@@ -97,7 +97,7 @@ export default function Home() {
       {/* <AppButton title="Delete storage (dev)" onPress={clearAllDestinations} /> */}
       
       {/* Add destination button */}
-      <FAB title="Add" placement="right" upperCase={true} color="#2563eb" onPress={() =>
+      <FAB title="Add" placement="right" upperCase={true} color="#2563eb" style={{paddingBottom: 30, paddingRight: 15}} onPress={() =>
           router.push({
             pathname: "/screens/addDestination",
           })}>
