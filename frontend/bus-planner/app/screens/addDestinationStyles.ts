@@ -35,4 +35,9 @@ export const styles = StyleSheet.create({
     marginTop: 12,
     fontWeight: "bold"
   },
+  deleteBtn: {
+    fontSize: 18,
+    marginLeft: 12,
+    color: "#cc0000",
+  },
 });

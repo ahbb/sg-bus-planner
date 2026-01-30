@@ -42,7 +42,7 @@ export default function AddDestination() {
     const urlParams = new URLSearchParams(params);
 
     try {
-      const res = await fetch(`${BACKEND_URL_LIVE}/bus-services?${urlParams.toString()}`, {
+      const res = await fetch(`${BACKEND_URL}/bus-services?${urlParams.toString()}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -182,6 +182,31 @@ export default function AddDestination() {
     }
   };
 
+  // after user selects bus stop and want to remove it. removes bus stop code from selected list, delete its services, delete its selected services and remove from loading state
+  const removeStop = (code: string) => {
+    setSelectedCodes((prev) => prev.filter((c) => c !== code)); // taking the code to be deleted and removing it from the selectedCodes array
+
+    setSelectedServices((prev) => {
+      // react state must be treated as immutable. spread prev (previous array of selected stops) to a clone, delete the key (code) and then return the new object
+      const copy = { ...prev };
+      delete copy[code];
+      return copy;
+    });
+
+    setStopServices((prev) => {
+      const copy = { ...prev };
+      delete copy[code];
+      return copy;
+    });
+
+    setLoadingStops((prev) => {
+      const copy = new Set(prev);
+      copy.delete(code);
+      return copy;
+    });
+
+  };
+
   // flatlist cannot be nested inside a scrollview with the same scroll direction
   return (
     <ScreenWrapper>
@@ -240,6 +265,14 @@ export default function AddDestination() {
                     • {stop.BusStopCode} - {stop.Description}
                   </Text>
 
+                  {/* Delete option */}
+                  <Pressable
+                    onPress={() => removeStop(code)}
+                    hitSlop={10}
+                  >
+                    <Text style={styles.deleteBtn}>✕</Text>
+                  </Pressable>
+
                   {loadingStops.has(code) && (
                     <Text style={{ marginLeft: 10 }}>Loading buses…</Text>
                   )}
@@ -280,7 +313,7 @@ export default function AddDestination() {
               );
             })}
 
-            <SafeAreaView>
+            <SafeAreaView style={{ marginTop: 12 }}>
               <AppButton title="Save" onPress={handleSave} />
             </SafeAreaView>
           </>
