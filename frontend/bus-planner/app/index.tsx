@@ -1,4 +1,4 @@
-import { View, Text, Button, ScrollView, Pressable, StyleSheet, FlatList } from "react-native";
+import { View, Text, Button, ScrollView, Pressable, StyleSheet, FlatList, Alert } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import ScreenWrapper from "./screens/screenwrapper";
 import { useCallback, useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { STORAGE_KEYS } from "./constants/storageKeys";
 import { AppButton } from "./screens/appButton";
 import { FAB } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Trash2 } from "lucide-react-native";
 
 // npx expo start --tunnel (tunnel to make it work on mobile)
 // eas update --channel production (to view changes on built app)
@@ -55,11 +56,43 @@ export default function Home() {
     })),
 ];
 
-  const clearAllDestinations = async () => {
-    await AsyncStorage.removeItem(STORAGE_KEYS.SAVED_DESTINATIONS);
-    setSavedDestinations([]);
-  };
+  const handleDelete = async (id: string) => {
+    Alert.alert(
+      "Delete destination",
+      "Are you sure you want to delete this destination?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel" // dismisses dialog with no action
+        },
+        {
+          text: "Delete",
+          style: "destructive", // renders red delete button
+          onPress: async() => {
+            try {
+              const saved = await AsyncStorage.getItem(STORAGE_KEYS.SAVED_DESTINATIONS);
+              const existing: SavedDestination[] = saved ? JSON.parse(saved) : []; // if saved has data, parse the JSON back into an array of SavedDestination objects. if null, default to empty array
 
+              const updated = existing.filter((dest) => dest.id !== id); // remove destination based on id
+              
+              // write the rest back to asyncstorage
+              await AsyncStorage.setItem(
+                STORAGE_KEYS.SAVED_DESTINATIONS,
+                JSON.stringify(updated)
+              );
+
+              // refresh UI
+              setSavedDestinations(updated);
+            }
+            catch(err) {
+              console.error(err);
+              Alert.alert("Error", "Failed to delete destination.");
+            }
+          }
+        },
+      ]
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -69,30 +102,45 @@ export default function Home() {
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({ item }) => (
-          <Pressable
-            onPress={() => {
-              if (item.type === "preset" && "value" in item) {
-                router.push({
-                  pathname: "/screens/results",
-                  params: { destination: item.value },
-                });
-              } else {
-                router.push({
-                  pathname: "/screens/results",
-                  params: { destinationId: item.id },
-                });
-              }
-            }}
-            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          >
-            <Text style={styles.rowText}>{item.label}</Text>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
+          <View style={styles.rowContainer}>
+            <Pressable
+              onPress={() => {
+                if (item.type === "preset" && "value" in item) {
+                  router.push({
+                    // Hardcorded destinations
+                    pathname: "/screens/results",
+                    params: { destination: item.value },
+                  });
+                } else {
+                  // Dynamically added destinations
+                  router.push({
+                    pathname: "/screens/results",
+                    params: { destinationId: item.id },
+                  });
+                }
+              }}
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            >
+              <Text style={styles.rowText}>{item.label}</Text>
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
+
+            {item.type !== "preset" && (
+              // Pressable passes a pressed boolean into the style function automatically
+              <Pressable
+                onPress={() => handleDelete(item.id)}
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  pressed && styles.deleteButtonPressed, // if pressed = true, apply deleteButtonPressed style
+                ]}
+              >
+                <Trash2 size={18} color="#FF3B30" />
+              </Pressable>
+            )}
+
+          </View>
         )}
       />
-
-      {/* Temporary delete storage button */}
-      {/* <AppButton title="Delete storage (dev)" onPress={clearAllDestinations} /> */}
 
       {/* Add destination button */}
       <SafeAreaView>
@@ -119,17 +167,12 @@ const styles = StyleSheet.create({
         paddingVertical: 8
     },
     row: {
-        backgroundColor: "#ffffff",
-        paddingVertical: 16,
-        paddingHorizontal: 16,
-        borderRadius: 12,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        elevation: 1, // Android
-        shadowColor: "#000", // iOS
-        shadowOpacity: 0.05,
-        shadowRadius: 4
+      flex: 1, // fills remaining space inside card
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
     rowPressed: {
         opacity: 0.7
@@ -147,5 +190,28 @@ const styles = StyleSheet.create({
     },
     button: {
       paddingBottom: 20
-    }
+    },
+    rowContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#ffffff",
+      borderRadius: 12,
+      elevation: 1,
+      shadowColor: "#000",
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      paddingRight: 8, // gives delete icon some breathing room
+    },
+    deleteButton: {
+      padding: 8,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    deleteButtonPressed: {
+      opacity: 0.5,
+    },
+    deleteButtonText: {
+      fontSize: 13,
+      fontWeight: "600",
+    },
 });
