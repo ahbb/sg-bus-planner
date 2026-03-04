@@ -42,7 +42,7 @@ export default function AddDestination() {
     const urlParams = new URLSearchParams(params);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/bus-services?${urlParams.toString()}`, {
+      const res = await fetch(`${BACKEND_URL_LIVE}/bus-services?${urlParams.toString()}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
