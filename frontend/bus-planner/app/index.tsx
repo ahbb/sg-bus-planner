@@ -10,6 +10,7 @@ import { FAB } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Trash2 } from "lucide-react-native";
 
+// npx expo doctor (check for any project issues)
 // npx expo start --tunnel (tunnel to make it work on mobile)
 // eas update --channel production (to view changes on built app)
 // eas build -p android --profile production (to rebuild when there are native runtime changes such as in app.json)
